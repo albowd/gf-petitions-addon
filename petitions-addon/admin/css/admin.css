@@ -1,0 +1,48 @@
+/* Petitions list table styling */
+.petition-progress-small {
+    margin: 5px 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.action-links {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.action-links .button {
+    transition: opacity 0.2s ease;
+}
+
+.action-links .reset-signatures {
+    color: #dc3232;
+    border-color: #dc3232;
+}
+
+.action-links .reset-signatures:hover {
+    background: #dc3232;
+    color: #fff;
+}
+
+/* Notice styling */
+.notice {
+    margin: 15px 0;
+}
+
+/* Features column styling */
+.features-list {
+    color: #666;
+    font-size: 13px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .action-links {
+        flex-direction: column;
+    }
+    
+    .action-links .button {
+        text-align: center;
+    }
+}
