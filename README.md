@@ -11,6 +11,10 @@ By enabling petition mode on a form, you will be add an entry count + target to 
 <img width="567" alt="image" src="https://github.com/user-attachments/assets/4c9bacc4-b9d0-415c-b81b-f41ce9482c36" />
 
 This plugin will also add a new menu item to Wordpress (called "Petitions") which will display a list of all forms with the "petition" option enabled + shortcuts to settings, csv signature export & edit.
-<img width="1078" alt="image" src="https://github.com/user-attachments/assets/f0e6d81f-8d7c-4db5-ac8d-568eba863d81" />
+<img width="1253" alt="image" src="https://github.com/user-attachments/assets/82fe8870-3ec5-486e-9d5e-0d927d1f601b" />
 
 This plugin adds the petition essentials (counter, target, increments, social share buttons, csv signature export) without affecting the core functionality of Gravity Forms. You can customise the form & all it's fields as if it were a normal Gravity Form + set up whatever custom actions you require after signature submission (including integrations with CRMs, auto emails, etc). 
+
+# Updates
+- Admin page (petitions list): add publish status (active/inactive) toggle
+- Admin page (petitions list): add toggle to mark petitions as complete
