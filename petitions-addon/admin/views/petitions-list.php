@@ -22,6 +22,7 @@
                     <th><?php _e('Actual / Additional', 'gf-petition-addon'); ?></th>
                     <th><?php _e('Goal', 'gf-petition-addon'); ?></th>
                     <th><?php _e('Progress', 'gf-petition-addon'); ?></th>
+                    <th><?php _e('Status', 'gf-petition-addon'); ?></th>
                     <th><?php _e('Features', 'gf-petition-addon'); ?></th>
                     <th><?php _e('Actions', 'gf-petition-addon'); ?></th>
                 </tr>
@@ -31,23 +32,55 @@
                     <tr>
                         <td>
                             <strong><?php echo esc_html($form['title']); ?></strong>
+                            <?php if ($form['is_complete']) : ?>
+                                <span class="completed-badge" style="background: #2ea44f; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">
+                                    <?php _e('Completed', 'gf-petition-addon'); ?>
+                                </span>
+                            <?php endif; ?>
                         </td>
                         <td><?php echo number_format($form['total_signatures']); ?></td>
                         <td><?php echo number_format($form['actual_signatures']); ?> / <?php echo number_format($form['additional_signatures']); ?></td>
                         <td><?php echo number_format($form['goal']); ?></td>
-                        <td>
+                        <td data-progress="<?php echo esc_attr($form['progress']); ?>">
                             <div class="petition-progress-small" style="background:#f5f7fa; height:8px; width:100px; border-radius:4px; overflow:hidden;">
-                                <div style="background:#c5203a; width:<?php echo esc_attr(min($form['progress'], 100)); ?>%; height:100%;"></div>
+                                <div style="background:<?php echo $form['is_complete'] ? '#2ea44f' : '#c5203a'; ?>; width:<?php echo esc_attr($form['is_complete'] ? '100' : min($form['progress'], 100)); ?>%; height:100%;"></div>
                             </div>
-                            <?php echo $form['progress']; ?>%
+                            <?php echo $form['is_complete'] ? __('Complete', 'gf-petition-addon') : $form['progress'] . '%'; ?>
+                        </td>
+                        <td>
+                            <label class="toggle-label">
+                                <?php
+                                $active_text = $form['is_active'] ? __('Active', 'gravityforms') : __('Inactive', 'gravityforms');
+                                ?>
+                                <?php _e('Status:', 'gf-petition-addon'); ?>
+                                <span class="toggle-switch">
+                                    <input 
+                                        type="checkbox" 
+                                        class="toggle-status" 
+                                        data-form-id="<?php echo esc_attr($form['id']); ?>" 
+                                        <?php checked($form['is_active']); ?>
+                                    >
+                                    <span class="toggle-slider"></span>
+                                </span>
+                                <span class="status-text" style="color: <?php echo $form['is_active'] ? '#2ea44f' : '#dc3232'; ?>">
+                                    <?php echo $active_text; ?>
+                                </span>
+                            </label>
+                            <br>
+                            <label class="toggle-label">
+                                <?php _e('Complete:', 'gf-petition-addon'); ?>
+                                <span class="toggle-switch">
+                                    <input type="checkbox" class="toggle-complete" data-form-id="<?php echo esc_attr($form['id']); ?>" 
+                                           <?php checked($form['is_complete']); ?>>
+                                    <span class="toggle-slider"></span>
+                                </span>
+                            </label>
                         </td>
                         <td>
                             <?php
                             $features = array();
-                            // After the features check, add this:
-if ($form['auto_increase']) $features[] = __('Auto-increase', 'gf-petition-addon');
-if ($form['social_share']) $features[] = __('Social Share', 'gf-petition-addon');
-if (!empty($settings['mark_complete'])) $features[] = __('Completed', 'gf-petition-addon');
+                            if ($form['auto_increase']) $features[] = __('Auto-increase', 'gf-petition-addon');
+                            if ($form['social_share']) $features[] = __('Social Share', 'gf-petition-addon');
                             echo implode(', ', $features);
                             ?>
                         </td>

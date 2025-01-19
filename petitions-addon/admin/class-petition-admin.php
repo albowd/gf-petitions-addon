@@ -15,6 +15,8 @@ class Admin {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_reset_signatures', array($this, 'ajax_reset_signatures'));
         add_action('wp_ajax_export_signatures', array($this, 'ajax_export_signatures'));
+        add_action('wp_ajax_toggle_petition_complete', array($this, 'ajax_toggle_petition_complete'));
+        add_action('wp_ajax_gf_toggle_form_status', array($this, 'ajax_toggle_form_status'));
     }
 
     /**
@@ -79,6 +81,10 @@ class Admin {
                 $additional = !empty($settings['additional_signatures']) ? absint($settings['additional_signatures']) : 0;
                 $goal = !empty($settings['petition_goal']) ? absint($settings['petition_goal']) : 0;
                 
+                // Get the form's active status
+                $form_info = \GFFormsModel::get_form($form['id']);
+                $is_active = $form_info->is_active;
+                
                 $petition_forms[] = array(
                     'id' => $form['id'],
                     'title' => $form['title'],
@@ -89,13 +95,45 @@ class Admin {
                     'progress' => $goal ? round(($total_count / $goal) * 100, 1) : 0,
                     'auto_increase' => !empty($settings['auto_increase']),
                     'social_share' => !empty($settings['enable_social_share']),
-                    'is_complete' => !empty($settings['mark_complete'])
+                    'is_complete' => !empty($settings['mark_complete']),
+                    'is_active' => $is_active
                 );
             }
         }
         
         // Include the admin view template
         include GF_PETITION_PATH . 'admin/views/petitions-list.php';
+    }
+
+    /**
+     * AJAX handler for toggling form active status
+     */
+    public function ajax_toggle_form_status() {
+        check_ajax_referer('gf_petition_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('You do not have permission to perform this action.', 'gf-petition-addon'));
+        }
+
+        $form_id = intval($_POST['form_id']);
+        $is_active = !empty($_POST['is_active']);
+        
+        // Get the form
+        $form = \GFAPI::get_form($form_id);
+        if (!$form) {
+            wp_send_json_error();
+            return;
+        }
+
+        // Update the form's active status
+        $form['is_active'] = $is_active;
+        $result = \GFAPI::update_form($form);
+
+        if ($result) {
+            wp_send_json_success();
+        } else {
+            wp_send_json_error();
+        }
     }
 
     /**
@@ -118,6 +156,35 @@ class Admin {
         } else {
             wp_send_json_error(__('Failed to reset signature count.', 'gf-petition-addon'));
         }
+    }
+
+    /**
+     * AJAX handler for toggling petition complete status
+     */
+    public function ajax_toggle_petition_complete() {
+        check_ajax_referer('gf_petition_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('You do not have permission to perform this action.', 'gf-petition-addon'));
+        }
+
+        $form_id = intval($_POST['form_id']);
+        $form = \GFAPI::get_form($form_id);
+        
+        if (!$form) {
+            wp_send_json_error(__('Form not found.', 'gf-petition-addon'));
+        }
+
+        $settings = $this->addon->get_form_settings($form);
+        $settings['mark_complete'] = !empty($_POST['complete']);
+        
+        $this->addon->save_form_settings($form, $settings);
+        
+        wp_send_json_success(array(
+            'message' => $settings['mark_complete'] ? 
+                __('Petition marked as complete.', 'gf-petition-addon') : 
+                __('Petition marked as incomplete.', 'gf-petition-addon')
+        ));
     }
 
     /**
